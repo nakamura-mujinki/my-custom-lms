@@ -22,3 +22,8 @@
 2025-08-15 05:38:37 +00:00: 
 2025-08-15 05:38:37 +00:00:   ➜  Local:   http://localhost:8080/
 2025-08-15 05:38:37 +00:00:   ➜  Network: http://169.254.0.21:8080/
+2025-08-15 05:44:15 +00:00: 5:44:15 AM [vite] vite.config.js changed, restarting server...
+2025-08-15 05:44:15 +00:00: No common_site_config.json found, using default port 8000
+2025-08-15 05:44:15 +00:00: Could not find frappe-bench/apps folder
+2025-08-15 05:44:15 +00:00: Failed to resolve dependency: showdown, present in 'optimizeDeps.include'
+2025-08-15 05:44:15 +00:00: 5:44:15 AM [vite] server restarted.
