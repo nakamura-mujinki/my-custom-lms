@@ -3,13 +3,18 @@ import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { useSettings } from './stores/settings'
 
-let defaultRoute = '/courses'
+let defaultRoute = '/demo'
 const routes = [
 	{
 		path: '/',
 		redirect: {
-			name: 'Courses',
+			name: 'DemoLanding',
 		},
+	},
+	{
+		path: '/demo',
+		name: 'DemoLanding',
+		component: () => import('@/pages/DemoLanding.vue'),
 	},
 	{
 		path: '/courses',
