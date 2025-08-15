@@ -1,4 +1,4 @@
-import '../../../frappe/frappe/public/js/lib/posthog.js'
+// スタンドアロン開発環境対応：Frappeのposthogライブラリを条件付きインポート
 import { createResource } from 'frappe-ui'
 
 declare global {
@@ -21,7 +21,19 @@ interface CaptureOptions {
   }
 }
 
-let posthog: typeof window.posthog = window.posthog
+// モックPosthogオブジェクト（スタンドアロン開発環境用）
+const mockPosthog = {
+  init: () => {},
+  capture: () => {},
+  identify: () => {},
+  alias: () => {},
+  reset: () => {},
+  group: () => {},
+  length: 0
+}
+
+// Posthogインスタンスの初期化（フォールバック付き）
+let posthog: typeof window.posthog = window.posthog || mockPosthog
 
 // スタンドアロン開発環境用のモック設定
 const mockPosthogSettings = {
@@ -55,21 +67,33 @@ let isTelemetryEnabled = () => {
 
 // Posthog Initialization
 function initPosthog(ps: PosthogSettings) {
-  if (!isTelemetryEnabled()) return
+  if (!isTelemetryEnabled()) {
+    console.info('Telemetry: Disabled or not configured')
+    return
+  }
 
-  posthog.init(ps.posthog_project_id, {
-    api_host: ps.posthog_host,
-    person_profiles: 'identified_only',
-    autocapture: false,
-    capture_pageview: true,
-    capture_pageleave: true,
-    enable_heatmaps: false,
-    disable_session_recording: false,
-    loaded: (ph: typeof posthog) => {
-      window.posthog = ph
-      ph.identify(window.location.hostname)
-    },
-  })
+  try {
+    // 実際のPosthogが利用可能な場合のみ初期化
+    if (posthog && posthog.init && typeof posthog.init === 'function') {
+      posthog.init(ps.posthog_project_id, {
+        api_host: ps.posthog_host,
+        person_profiles: 'identified_only',
+        autocapture: false,
+        capture_pageview: true,
+        capture_pageleave: true,
+        enable_heatmaps: false,
+        disable_session_recording: false,
+        loaded: (ph: typeof posthog) => {
+          window.posthog = ph
+          ph.identify(window.location.hostname)
+        },
+      })
+    } else {
+      console.info('Telemetry: Using mock posthog (standalone development)')
+    }
+  } catch (error) {
+    console.warn('Telemetry initialization error:', error)
+  }
 }
 
 // Posthog Functions
@@ -78,7 +102,14 @@ function capture(
   options: CaptureOptions = { data: { user: '' } },
 ) {
   if (!isTelemetryEnabled()) return
-  window.posthog.capture(`lms_${event}`, options)
+  
+  try {
+    if (window.posthog && window.posthog.capture) {
+      window.posthog.capture(`lms_${event}`, options)
+    }
+  } catch (error) {
+    console.debug('Telemetry capture failed (expected in development):', error)
+  }
 }
 
 function startRecording() {
@@ -93,9 +124,15 @@ function posthogPlugin(app: any) {
     
     // スタンドアロン開発環境では設定の取得をスキップすることがある
     try {
-      if (!window.posthog?.length) posthogSettings.fetch()
+      // バックエンドが利用可能な場合のみ設定を取得
+      if (window.frappe || window.location.pathname.includes('/lms')) {
+        if (!window.posthog?.length) posthogSettings.fetch()
+      } else {
+        console.info('Telemetry: Standalone mode - using mock settings')
+        posthogSettings.data = mockPosthogSettings
+      }
     } catch (error) {
-      console.info('Telemetry: Skipping settings fetch in standalone mode')
+      console.info('Telemetry: Settings fetch failed, using mock settings')
       posthogSettings.data = mockPosthogSettings
     }
 }
