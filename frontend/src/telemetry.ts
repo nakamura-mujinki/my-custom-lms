@@ -23,11 +23,24 @@ interface CaptureOptions {
 
 let posthog: typeof window.posthog = window.posthog
 
-// Posthog Settings
+// スタンドアロン開発環境用のモック設定
+const mockPosthogSettings = {
+  posthog_project_id: '',
+  posthog_host: '',
+  enable_telemetry: false, // 開発環境では無効
+  telemetry_site_age: 0
+}
+
+// Posthog Settings - 開発環境では固定値を使用
 let posthogSettings = createResource({
   url: 'lms.lms.telemetry.get_posthog_settings',
   cache: 'posthog_settings',
   onSuccess: (ps: PosthogSettings) => initPosthog(ps),
+  onError: () => {
+    // バックエンドが利用できない場合はモック設定を使用
+    console.info('Telemetry: Using mock settings (backend not available)');
+    posthogSettings.data = mockPosthogSettings;
+  }
 })
 
 let isTelemetryEnabled = () => {
@@ -77,7 +90,14 @@ function stopRecording() {
 // Posthog Plugin
 function posthogPlugin(app: any) {
     app.config.globalProperties.posthog = posthog
-    if (!window.posthog?.length) posthogSettings.fetch()
+    
+    // スタンドアロン開発環境では設定の取得をスキップすることがある
+    try {
+      if (!window.posthog?.length) posthogSettings.fetch()
+    } catch (error) {
+      console.info('Telemetry: Skipping settings fetch in standalone mode')
+      posthogSettings.data = mockPosthogSettings
+    }
 }
 
 export {

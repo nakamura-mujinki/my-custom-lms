@@ -52,7 +52,11 @@ onUnmounted(() => {
 
 watch(userResource, () => {
 	if (userResource.data) {
-		posthogSettings.reload()
+		try {
+			posthogSettings.reload()
+		} catch (error) {
+			console.info('Telemetry: Skipping reload in standalone mode')
+		}
 	}
 })
 </script>
