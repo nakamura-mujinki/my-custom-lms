@@ -33,7 +33,7 @@
 						>
 							{{ branding.data?.app_name }}
 						</span>
-						<span v-else> Learning </span>
+						<span v-else> Custom LMS </span>
 					</div>
 					<div
 						v-if="userResource.data"

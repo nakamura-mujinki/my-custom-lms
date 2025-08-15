@@ -1,7 +1,7 @@
 {
-  "name": "frappe-ui-frontend",
+  "name": "my-custom-lms-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0-fork",
   "type": "module",
   "scripts": {
     "dev": "vite",
