@@ -61,7 +61,12 @@ export default defineConfig({
 	],
 	server: {
 		host: '0.0.0.0', // Accept connections from any network interface
-		allowedHosts: ['ps', 'fs'], // Explicitly allow this host
+		allowedHosts: [
+			'ps', 
+			'fs', 
+			'8080-iep68tmdyefszgtzou5d1-6532622b.e2b.dev',
+			'.e2b.dev' // Allow all e2b.dev subdomains
+		],
 	},
 	resolve: {
 		alias: {
