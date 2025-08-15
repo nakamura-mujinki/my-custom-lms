@@ -35,12 +35,12 @@ export default defineConfig({
 			},
 			manifest: {
 				display: 'standalone',
-				name: 'Learning',
-				short_name: 'Learning',
-				start_url: '/lms',
+				name: 'Custom LMS',
+				short_name: 'Custom LMS',
+				start_url: '/',
 				description:
-					'Easy to use, 100% open source Learning Management System',
-				theme_color: '#0f7159',
+					'Custom fork of Frappe Learning - Enhanced Learning Management System',
+				theme_color: '#4F46E5',
 				background_color: '#ffffff',
 				icons: [
 					{
